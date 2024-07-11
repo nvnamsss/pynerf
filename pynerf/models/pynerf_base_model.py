@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 from abc import abstractmethod
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Dict, List, Tuple, Optional, Any
 
 import math
 import numpy as np
 import torch
 import torch.nn.functional as F
+from nerfstudio.cameras.camera_optimizers import CameraOptimizer, CameraOptimizerConfig
 from nerfstudio.cameras.rays import RayBundle
 from nerfstudio.field_components.spatial_distortions import SceneContraction
 from nerfstudio.model_components.losses import MSELoss
@@ -148,6 +149,7 @@ class PyNeRFBaseModelConfig(ModelConfig):
     """Scale factor between levels in the PyNeRF hierarchy."""
     share_feature_grid: bool = True
     """Whether to share the same feature grid between levels."""
+    camera_optimizer: CameraOptimizerConfig = field(default_factory=lambda: CameraOptimizerConfig(mode="SO3xR3"))
 
 class PyNeRFBaseModel(Model):
     config: PyNeRFBaseModelConfig
@@ -202,6 +204,10 @@ class PyNeRFBaseModel(Model):
             scale_factor=self.config.scale_factor,
             share_feature_grid=self.config.share_feature_grid,
             cameras=self.cameras,
+        )
+        
+        self.camera_optimizer: CameraOptimizer = self.config.camera_optimizer.setup(
+            num_cameras=self.num_train_data, device="cpu"
         )
 
         # renderers

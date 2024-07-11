@@ -91,10 +91,11 @@ class RandomSubsetDataManager(DataManager):
         self.includes_time = dataparser.includes_time
         self.train_dataparser_outputs: DataparserOutputs = dataparser.get_dataparser_outputs(split="train")
 
-        self.train_camera_optimizer = self.config.camera_optimizer.setup(
-            num_cameras=self.train_dataparser_outputs.cameras.size, device=self.device)
-        self.train_ray_generator = RayGenerator(self.train_dataparser_outputs.cameras.to(self.device),
-                                                self.train_camera_optimizer)
+        # self.train_camera_optimizer = self.config.camera_optimizer.setup(
+        #     num_cameras=self.train_dataparser_outputs.cameras.size, device=self.device)
+        # self.train_ray_generator = RayGenerator(self.train_dataparser_outputs.cameras.to(self.device),
+        #                                         self.train_camera_optimizer)
+        self.train_ray_generator = RayGenerator(self.train_dataparser_outputs.cameras.to(self.device))
 
         fields_to_load = {RGB}
         for additional_field in {DEPTH, WEIGHT, TRAIN_INDEX}:
@@ -115,10 +116,11 @@ class RandomSubsetDataManager(DataManager):
         self.eval_dataparser_outputs = dataparser.get_dataparser_outputs(split='test')  # test_mode)
 
         self.eval_dataset = InputDataset(self.eval_dataparser_outputs)
-        self.eval_camera_optimizer = self.config.camera_optimizer.setup(
-            num_cameras=self.eval_dataparser_outputs.cameras.size, device=self.device)
-        self.eval_ray_generator = RayGenerator(self.eval_dataparser_outputs.cameras.to(self.device),
-                                               self.eval_camera_optimizer)
+        # self.eval_camera_optimizer = self.config.camera_optimizer.setup(
+        #     num_cameras=self.eval_dataparser_outputs.cameras.size, device=self.device)
+        # self.eval_ray_generator = RayGenerator(self.eval_dataparser_outputs.cameras.to(self.device),
+        #                                        self.eval_camera_optimizer)
+        self.eval_ray_generator = RayGenerator(self.eval_dataparser_outputs.cameras.to(self.device))
 
         self.eval_image_metadata = self._get_image_metadata(self.eval_dataparser_outputs)
         self.eval_batch_dataset = RandomSubsetDataset(
@@ -234,12 +236,12 @@ class RandomSubsetDataManager(DataManager):
         """
         param_groups = {}
 
-        camera_opt_params = list(self.train_camera_optimizer.parameters())
-        if self.config.camera_optimizer.mode != "off":
-            assert len(camera_opt_params) > 0
-            param_groups[self.config.camera_optimizer.param_group] = camera_opt_params
-        else:
-            assert len(camera_opt_params) == 0
+        # camera_opt_params = list(self.train_camera_optimizer.parameters())
+        # if self.config.camera_optimizer.mode != "off":
+        #     assert len(camera_opt_params) > 0
+        #     param_groups[self.config.camera_optimizer.param_group] = camera_opt_params
+        # else:
+        #     assert len(camera_opt_params) == 0
 
         return param_groups
 

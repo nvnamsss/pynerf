@@ -98,7 +98,7 @@ class Mipnerf360(DataParser):
         image_filenames = []
 
         camera_params = read_cameras_binary(self.config.data / 'sparse/0/cameras.bin')
-        assert camera_params[1].model == 'PINHOLE'
+        assert camera_params[1].model == 'PINHOLE', f'camera model is {camera_params[1].model} instead of PINHOLE' 
         camera_fx, camera_fy, camera_cx, camera_cy = camera_params[1].params
 
         for scale in self.config.scales:
