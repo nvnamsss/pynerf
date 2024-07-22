@@ -39,16 +39,16 @@ def get_average_eval_image_metrics(datamanager: DataManager, model: Model, step:
             transient=True,
     ) as progress:
         task = progress.add_task("[green]Evaluating all eval images...", total=num_images)
-        for camera_ray_bundle, batch in datamanager.fixed_indices_eval_dataloader:
+        for camera, batch in datamanager.fixed_indices_eval_dataloader:
             # time this the following line
             inner_start = time()
-            height, width = camera_ray_bundle.shape
+            height, width = camera.height, camera.width
             num_rays = height * width
-            outputs = model.get_outputs_for_camera_ray_bundle(camera_ray_bundle)
+            outputs = model.get_outputs_for_camera(camera)
             metrics_dict, images_dict = model.get_image_metrics_and_images(outputs, batch)
 
             if output_path is not None:
-                camera_indices = camera_ray_bundle.camera_indices
+                camera_indices = camera.camera_indices
                 assert camera_indices is not None
                 for key, val in images_dict.items():
                     Image.fromarray((val * 255).byte().cpu().numpy()).save(
